@@ -1,6 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './api/models/user/user.module';
+import { User } from './api/models/user/user.entity';
+import { ProjectModule } from './api/models/project-user/project-users.module';
+import { ProjectUser } from './api/models/project-user/project-users.entity';
+import { Projects } from './api/models/project/projects.module';
+import { Project } from './api/models/project/projects.entity';
 
 @Module({
   imports: [
@@ -14,11 +20,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [],
+        entities: [User, ProjectUser, Project],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
+    UserModule,
+    ProjectModule,
+    Projects
   ],
   controllers: [],
   providers: [],
