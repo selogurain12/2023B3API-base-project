@@ -183,7 +183,7 @@ id!: string; //au format uuidv4
 #### POST /projects
 
 Speech client : En tant qu'*Administrateur*, je veux pouvoir créer un projet en renseignant un nom, une description et un
-référent qui doit être *Administrateur* ou *Chef de projet*.
+référent. Celui ci doit être *Administrateur* ou *Chef de projet*.
 
 *Notes du lead-developper : Si une personne essaie de créer un projet sans être administrateur, il faut que tu me renvoies
 une **UnauthorizedException**. Fais en de même si la personne référente donnée n'est pas au minimum un chef de projet.
@@ -207,19 +207,7 @@ Speech client :
 - En tant qu'*Employé*, je veux pouvoir voir toutes mes assignations aux différents projets.
 
 
-#### GET /project-users/:id
-
-Speech client :
-- En tant qu'*Administrateurs* ou *Chef de projet*, je veux pouvoir voir une assignation en particulier.
-- En tant qu'*Employé*, je veux pouvoir voir une de mes assignations.
-
-*Notes du lead-developper : Dans le cas où tu n'as pas accès à la ressource demandée, penses bien à renvoyer une UnauthorizedException.*
-
-```
-Parametres (query) :
-
-id!: string; //au format uuidv4
-```
+x
 
 #### POST /project-users
 
@@ -302,13 +290,13 @@ id!: string; //au format uuidv4
 ## Organisation des tests
 
 ### day1.testing.ts
-- POST /users/auth/sign-up
-- POST /users/auth/login
-- GET /users/me
+- POST /users/auth/sign-up    => OK
+- POST /users/auth/login      => OK
+- GET /users/me               => OK
 
 ### day2-part1.testing.ts
-- GET /users/
-- GET /users/:id
+- GET /users/                 => OK
+- GET /users/:id              => OK
 
 ### day2-part2.testing.ts
 - POST /project-users/ (**Obligatoire** pour les tests du jour mais pas testée directement)
@@ -317,9 +305,9 @@ id!: string; //au format uuidv4
 - GET /projects/:id
 
 ### day3.testing.ts
-- POST /project-users/
-- GET /project-users/
-- GET /project-users/:id
+- POST /project-users/        => OK
+- GET /project-users/         => OK
+- GET /project-users/:id      => OK
 
 ### day4.testing.ts
 - POST /events/
