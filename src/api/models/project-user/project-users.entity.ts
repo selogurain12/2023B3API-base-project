@@ -27,10 +27,4 @@ export class ProjectUser {
 
     @Column({ type: 'timestamp' })
     endDate: Date;
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }
