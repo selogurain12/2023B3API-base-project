@@ -48,8 +48,8 @@ export class UsersService {
     };
   }
   async authenticateUser(email: string, password: string): Promise<string> {
-    const user = await this.userRepository.findOne({ where: { email } });
-  
+    const user = await this.userRepository.findOne({ where: { email }, select: ['email', 'password', 'id', 'role'] });
+
     if (!user) {
       throw new UnauthorizedException('L\'utilisateur n\'existe pas.');
     }
@@ -59,7 +59,7 @@ export class UsersService {
       throw new UnauthorizedException('Mot de passe incorrect.');
     }
   
-    const token = await this.jwtService.signAsync({ sub: user.id, email: user.email });
+    const token = await this.jwtService.signAsync({ sub: user.id, email: user.email, role: user.role });
   
     return token;
   }

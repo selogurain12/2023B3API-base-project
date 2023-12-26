@@ -15,7 +15,7 @@ export class User {
     @Column()
     email: string;
 
-    @Column()
+    @Column({ select: false })
     password: string;
 
     @Column({ default: 'Employee' })
@@ -23,10 +23,4 @@ export class User {
 
     @OneToMany(() => ProjectUser, projectUser => projectUser.user)
     projectUsers: ProjectUser[];
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }
