@@ -20,10 +20,4 @@ export class Project {
 
     @OneToMany(() => ProjectUser, projectUser => projectUser.project)
     projectUsers: ProjectUser[];
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }

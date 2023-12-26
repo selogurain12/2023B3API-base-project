@@ -6,9 +6,10 @@ import { ProjectController } from "./projects.controller";
 import { ProjectService } from "./projects.service";
 import { User } from "../user/user.entity";
 import { jwtConstants } from "../auth/constant";
+import { ProjectUser } from "../project-user/project-users.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Project, User]), 
+    imports: [TypeOrmModule.forFeature([Project, User, ProjectUser]), 
     JwtModule.register({
         global: true,
         secret: jwtConstants.secret,
