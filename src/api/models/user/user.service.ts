@@ -94,4 +94,33 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
   
+  async getMealVouchersAmount(userId: string, month: number): Promise<number> {
+    const user = await this.userRepository.findOne({where: {id: userId}});
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé.');
+    }
+
+    const startOfMonth = new Date(new Date().getFullYear(), month - 1, 1);
+    const endOfMonth = new Date(new Date().getFullYear(), month, 0);
+
+    // Votre logique pour compter les jours de travail et calculer le montant des titres restaurant
+    // doit être implémentée ici en utilisant les informations du calendrier de travail de l'utilisateur.
+
+    // Exemple simple : accorder 8 euros par jour travaillé
+    const workDays = this.calculateWorkDays(startOfMonth, endOfMonth);
+    const mealVoucherAmount = workDays * 8;
+
+    return mealVoucherAmount;
+  }
+
+  private calculateWorkDays(startDate: Date, endDate: Date): number {
+    // Votre logique pour compter les jours ouvrés doit être implémentée ici
+    // Cette implémentation est une approximation simple qui compte tous les jours entre les dates spécifiées.
+    // Vous pouvez personnaliser cela en fonction de votre logique spécifique.
+    const oneDay = 24 * 60 * 60 * 1000; // heures * minutes * secondes * millisecondes
+    const days = Math.round(Math.abs((startDate.getTime() - endDate.getTime()) / oneDay));
+
+    return days + 1; // +1 pour inclure également le jour de départ
+  }
 }
