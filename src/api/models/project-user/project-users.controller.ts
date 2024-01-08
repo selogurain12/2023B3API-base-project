@@ -2,11 +2,6 @@ import { Controller, Post, Body, UseGuards, Request, Get, Headers, NotFoundExcep
 import { ProjectUserService } from './project-users.service';
 import { ProjectUser } from './project-users.entity';
 import { AuthGuard } from '../auth/auth.guard';
-interface ProjectUserAssignmentResponse {
-  id: string;
-  name: string;
-  referringEmployeeId: string;
-}
 
 @Controller('project-users')
 @UseGuards(AuthGuard)
@@ -34,7 +29,7 @@ export class ProjectUserController {
     }
   }
   @Get()
-  async getProjectUserAssignments(@Headers('authorization') authorization: string): Promise<ProjectUserAssignmentResponse[]> {
+  async getProjectUserAssignments(@Headers('authorization') authorization: string): Promise<{id: string, startDate: Date, endDate: Date, userId: string, projectId: string}[]> {
     const token = authorization.split(' ')[1]; // Extraire le token de l'en-tête Authorization
     return this.projectUserService.getProjectUserAssignments(token);
   }

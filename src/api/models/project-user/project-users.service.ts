@@ -97,7 +97,7 @@ export class ProjectUserService {
     // Return the entire structure with referringEmployee
     return { ...savedAssignment, project: { ...project, referringEmployee } };
   }
-  async getProjectUserAssignments(token: string): Promise<{ id: string, name: string, referringEmployeeId: string }[]> {
+  async getProjectUserAssignments(token: string): Promise<{ id: string, startDate: Date, endDate: Date, userId: string, projectId: string }[]> {
     // Décoder le token pour obtenir l'ID de l'utilisateur
     const decodedToken = this.jwtService.decode(token) as { sub: string };
 
@@ -105,37 +105,42 @@ export class ProjectUserService {
     const user = await this.userRepository.findOne({ where: { id: decodedToken.sub } });
 
     if (!user) {
-      throw new NotFoundException('Utilisateur non trouvé.');
+        throw new NotFoundException('Utilisateur non trouvé.');
     }
 
     // Vérifier le rôle de l'utilisateur
     if (user.role === 'Employee') {
-      // Si l'utilisateur est un employé, renvoyer seulement ses propres assignations
-      const userAssignments = await this.projectUserRepository.find({ where: { userId: user.id }, relations: ['project'] });
+        // Si l'utilisateur est un employé, renvoyer seulement ses propres assignations
+        const userAssignments = await this.projectUserRepository.find({ where: { userId: user.id }, relations: ['project'] });
 
-      // Extraire les propriétés nécessaires pour le schéma JSON
-      const result = userAssignments.map(assignment => ({
-        id: assignment.project.id,
-        name: assignment.project.name,
-        referringEmployeeId: assignment.project.referringEmployeeId,
-      }));
-      return result;
+        // Extraire les propriétés nécessaires pour le schéma JSON
+        const result = userAssignments.map(assignment => ({
+            id: assignment.project.id,
+            startDate: assignment.startDate,  // Include startDate property
+            endDate: assignment.endDate,      // Include endDate property
+            userId: assignment.userId,
+            projectId: assignment.projectId,
+        }));
+        return result;
     } else if (user.role === 'Admin' || user.role === 'ProjectManager') {
-      // Si l'utilisateur est un administrateur ou un chef de projet, renvoyer toutes les assignations
-      const allAssignments = await this.projectUserRepository.find({ relations: ['user', 'project'] });
+        // Si l'utilisateur est un administrateur ou un chef de projet, renvoyer toutes les assignations
+        const allAssignments = await this.projectUserRepository.find({ relations: ['user', 'project'] });
 
-      // Extraire les propriétés nécessaires pour le schéma JSON
-      const result = allAssignments.map(assignment => ({
-        id: assignment.project.id,
-        name: assignment.project.name,
-        referringEmployeeId: assignment.project.referringEmployeeId,
-      }));
-      return result;
+        // Extraire les propriétés nécessaires pour le schéma JSON
+        const result = allAssignments.map(assignment => ({
+            id: assignment.project.id,
+            startDate: assignment.startDate,  // Include startDate property
+            endDate: assignment.endDate,    // Include endDate property
+            userId: assignment.userId,
+            projectId: assignment.projectId,
+        }));
+        return result;
     } else {
-      // Si l'utilisateur a un rôle non autorisé, lancer une exception UnauthorizedException
-      throw new UnauthorizedException('Vous n\'avez pas les droits pour effectuer cette action.');
+        // Si l'utilisateur a un rôle non autorisé, lancer une exception UnauthorizedException
+        throw new UnauthorizedException('Vous n\'avez pas les droits pour effectuer cette action.');
     }
-  }
+}
+
   
   async getProjectUserById(projectUserId: string, requestingUserId: string): Promise<ProjectUser> {
     const requestingUser = await this.userRepository.findOne({ where: { id: requestingUserId } });
