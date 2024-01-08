@@ -299,10 +299,10 @@ id!: string; //au format uuidv4
 - GET /users/:id              => OK
 
 ### day2-part2.testing.ts
-- POST /project-users/ (**Obligatoire** pour les tests du jour mais pas testée directement)
-- POST /projects/
-- GET /projects/
-- GET /projects/:id
+- POST /project-users/ (**Obligatoire** pour les tests du jour mais pas testée directement)    => OK
+- POST /projects/             => OK
+- GET /projects/              => OK
+- GET /projects/:id           
 
 ### day3.testing.ts
 - POST /project-users/        => OK
@@ -310,9 +310,9 @@ id!: string; //au format uuidv4
 - GET /project-users/:id      => OK
 
 ### day4.testing.ts
-- POST /events/
-- GET /events/
-- GET /events/:id
+- POST /events/               => OK
+- GET /events/                => OK
+- GET /events/:id             => OK
 
 ### day5-part1.testing.ts
 - POST /events/:id/validate

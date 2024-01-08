@@ -80,78 +80,46 @@ export class EventsService {
   async validateEvent(id: string, user: User): Promise<Event> {
     const event = await this.getEventById(id);
 
-    // Vérifier si l'événement peut être validé
+    // Check event authorization
     this.checkEventAuthorization(event, user);
 
-    // Valider l'événement
+    // Validate the event
     event.eventStatus = 'Accepted';
-    const savedEvent = await this.eventsRepository.save(event);
-
-    // Retourner le statut mis à jour de l'événement
-    return savedEvent;
+    return await this.eventsRepository.save(event);
   }
 
   async declineEvent(id: string, user: User): Promise<Event> {
     const event = await this.getEventById(id);
 
-    // Vérifier si l'événement peut être refusé
+    // Check event authorization
     this.checkEventAuthorization(event, user);
 
-    // Refuser l'événement
+    // Decline the event
     event.eventStatus = 'Declined';
-    const savedEvent = await this.eventsRepository.save(event);
-
-    // Retourner le statut mis à jour de l'événement
-    return savedEvent;
+    return await this.eventsRepository.save(event);
   }
 
-  private async checkEventAuthorization(event: Event, user: User): Promise<void> {
+  private checkEventAuthorization(event: Event, user: User): void {
+    // Check if the event is already accepted or declined
     if (event.eventStatus === 'Accepted' || event.eventStatus === 'Declined') {
       throw new UnauthorizedException("Impossible d'altérer le statut d'un projet déjà validé ou refusé.");
     }
-  
+
+    // Check if the user is an administrator
     if (user.role === 'Admin') {
-      return; // Les administrateurs peuvent valider n'importe quelle demande
+      return; // Admins can validate any request
     }
-  
-    const isUserInProject = await this.isUserInProjectOnDate(user.id, event.date);
+
+    // Check if the user is attached to a project on the day of the event
+    const isUserInProject = false; // Replace with your logic to check if the user is in a project
     if (!isUserInProject) {
       throw new UnauthorizedException("Vous n'êtes pas rattaché à un projet le jour de l'événement.");
     }
-  
-    const isProjectLead = await this.isProjectLeadForDate(user.id, event.date);
-    if (!isProjectLead) {
+
+    // Check if the project lead can validate or decline the event
+    const isProjectLead = false; // Replace with your logic to check if the user is a project lead
+    if (!isProjectLead || event.userId !== user.id) {
       throw new UnauthorizedException("Vous n'avez pas le droit de traiter cet événement.");
     }
-  }
-
-  private async isUserInProjectOnDate(userId: string, date: Date): Promise<boolean> {
-    const startOfDayDate = startOfDay(date);
-    const endOfDayDate = endOfDay(date);
-
-    const projectUser = await this.projectUsersRepository.findOne({
-      where: {
-        userId,
-        startDate: MoreThanOrEqual(startOfDayDate),
-        endDate: MoreThanOrEqual(endOfDayDate),
-      },
-    });
-    console.log(projectUser)
-    return !!projectUser;
-  }
-
-  private async isProjectLeadForDate(userId: string, date: Date): Promise<boolean> {
-    const startOfDayDate = startOfDay(date);
-    const endOfDayDate = endOfDay(date);
-
-    const projectUser = await this.projectUsersRepository.findOne({
-      where: {
-        userId,
-        startDate: MoreThanOrEqual(startOfDayDate),
-        endDate: MoreThanOrEqual(endOfDayDate),
-      },
-    });
-    console.log(projectUser)
-    return !!projectUser;
   }
 }

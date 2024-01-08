@@ -1,10 +1,11 @@
 // events.controller.ts
 
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards, Req } from '@nestjs/common';
 import { EventsService } from './event.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { Event } from './event.entity';
 import { CreateEventDto } from './create-dto.dto';
+import { User } from '../user/user.entity';
 
 @Controller('events')
 @UseGuards(AuthGuard)
@@ -29,14 +30,14 @@ export class EventsController {
   }
 
   @Post(':id/validate')
-  async validateEvent(@Param('id') id: string, @Req() req): Promise<Event> {
-    const userId = req.user.sub;
-    return await this.eventsService.validateEvent(id, userId);
+  async validateEvent(@Param('id') id: string, @Request() req): Promise<Event> {
+    const user: User = req.user; // Assuming the user object is attached to the request by the authentication middleware
+    return this.eventsService.validateEvent(id, user);
   }
 
   @Post(':id/decline')
-  async declineEvent(@Param('id') id: string, @Req() req): Promise<Event> {
-    const user = req.user;
-    return await this.eventsService.declineEvent(id, user);
+  async declineEvent(@Param('id') id: string, @Request() req): Promise<Event> {
+    const user: User = req.user;
+    return this.eventsService.declineEvent(id, user);
   }
 }
