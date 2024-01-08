@@ -5,6 +5,7 @@ import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt'; 
+import { startOfMonth, endOfMonth, isWeekend, addDays, isMonday, isTuesday, isWednesday, isThursday, isFriday } from 'date-fns';
 
 
 @Injectable()
@@ -95,32 +96,43 @@ export class UsersService {
   }
   
   async getMealVouchersAmount(userId: string, month: number): Promise<number> {
-    const user = await this.userRepository.findOne({where: {id: userId}});
+    const user = await this.getUserById(userId);
+    const startDate = startOfMonth(new Date(2024, month - 1, 1)); // Assuming 2024 for the year
+    const endDate = endOfMonth(startDate);
+    
+    // Calculate the number of working days in the month
+    const workingDays = this.getWorkingDays(startDate, endDate);
 
-    if (!user) {
-      throw new NotFoundException('Utilisateur non trouvé.');
-    }
-
-    const startOfMonth = new Date(new Date().getFullYear(), month - 1, 1);
-    const endOfMonth = new Date(new Date().getFullYear(), month, 0);
-
-    // Votre logique pour compter les jours de travail et calculer le montant des titres restaurant
-    // doit être implémentée ici en utilisant les informations du calendrier de travail de l'utilisateur.
-
-    // Exemple simple : accorder 8 euros par jour travaillé
-    const workDays = this.calculateWorkDays(startOfMonth, endOfMonth);
-    const mealVoucherAmount = workDays * 8;
-
+    // Assuming 8 euros per working day
+    const mealVoucherAmount = workingDays * 8;
+    
     return mealVoucherAmount;
   }
 
-  private calculateWorkDays(startDate: Date, endDate: Date): number {
-    // Votre logique pour compter les jours ouvrés doit être implémentée ici
-    // Cette implémentation est une approximation simple qui compte tous les jours entre les dates spécifiées.
-    // Vous pouvez personnaliser cela en fonction de votre logique spécifique.
-    const oneDay = 24 * 60 * 60 * 1000; // heures * minutes * secondes * millisecondes
-    const days = Math.round(Math.abs((startDate.getTime() - endDate.getTime()) / oneDay));
+  private async getUserById(userId: string): Promise<User> {
+    const user = await this.userRepository.findOne({where : { id: userId }});
+    if (!user) {
+      throw new NotFoundException("Utilisateur non trouvé.");
+    }
+    return user;
+  }
 
-    return days + 1; // +1 pour inclure également le jour de départ
+  private getWorkingDays(startDate: Date, endDate: Date): number {
+    let workingDays = 0;
+    let currentDate = startDate;
+
+    while (currentDate <= endDate) {
+      if (!isWeekend(currentDate) && this.isWorkingDay(currentDate)) {
+        workingDays++;
+      }
+
+      currentDate = addDays(currentDate, 1);
+    }
+
+    return workingDays;
+  }
+
+  private isWorkingDay(date: Date): boolean {
+    return isMonday(date) || isTuesday(date) || isWednesday(date) || isThursday(date) || isFriday(date);
   }
 }
