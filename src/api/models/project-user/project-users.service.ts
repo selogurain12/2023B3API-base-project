@@ -1,8 +1,6 @@
-// src/project-user/project-user.service.ts
-
 import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, LessThanOrEqual, MoreThanOrEqual, Equal } from 'typeorm';
 import { ProjectUser } from './project-users.entity';
 import { Project } from '../project/projects.entity';
 import { User } from '../user/user.entity';
@@ -47,6 +45,11 @@ export class ProjectUserService {
           startDate: LessThanOrEqual(startDate),
           endDate: LessThanOrEqual(endDate),
         },
+        {
+          userId,
+          startDate: Equal(startDate),
+          endDate: Equal(endDate),
+        }
       ],
       relations: ['user', 'project', 'project.referringEmployee'],
       select: ['id', 'startDate', 'endDate', 'project', 'user', 'userId'],
@@ -94,53 +97,44 @@ export class ProjectUserService {
       throw new NotFoundException('Affectation non trouvée après la sauvegarde.');
     }
 
-    // Return the entire structure with referringEmployee
     return { ...savedAssignment, project: { ...project, referringEmployee } };
   }
+
   async getProjectUserAssignments(token: string): Promise<{ id: string, startDate: Date, endDate: Date, userId: string, projectId: string }[]> {
-    // Décoder le token pour obtenir l'ID de l'utilisateur
     const decodedToken = this.jwtService.decode(token) as { sub: string };
 
-    // Trouver l'utilisateur dans la base de données
     const user = await this.userRepository.findOne({ where: { id: decodedToken.sub } });
 
     if (!user) {
         throw new NotFoundException('Utilisateur non trouvé.');
     }
 
-    // Vérifier le rôle de l'utilisateur
     if (user.role === 'Employee') {
-        // Si l'utilisateur est un employé, renvoyer seulement ses propres assignations
         const userAssignments = await this.projectUserRepository.find({ where: { userId: user.id }, relations: ['project'] });
 
-        // Extraire les propriétés nécessaires pour le schéma JSON
         const result = userAssignments.map(assignment => ({
             id: assignment.project.id,
-            startDate: assignment.startDate,  // Include startDate property
-            endDate: assignment.endDate,      // Include endDate property
+            startDate: assignment.startDate, 
+            endDate: assignment.endDate,
             userId: assignment.userId,
             projectId: assignment.projectId,
         }));
         return result;
     } else if (user.role === 'Admin' || user.role === 'ProjectManager') {
-        // Si l'utilisateur est un administrateur ou un chef de projet, renvoyer toutes les assignations
         const allAssignments = await this.projectUserRepository.find({ relations: ['user', 'project'] });
 
-        // Extraire les propriétés nécessaires pour le schéma JSON
         const result = allAssignments.map(assignment => ({
             id: assignment.project.id,
-            startDate: assignment.startDate,  // Include startDate property
-            endDate: assignment.endDate,    // Include endDate property
+            startDate: assignment.startDate,
+            endDate: assignment.endDate,
             userId: assignment.userId,
             projectId: assignment.projectId,
         }));
         return result;
     } else {
-        // Si l'utilisateur a un rôle non autorisé, lancer une exception UnauthorizedException
         throw new UnauthorizedException('Vous n\'avez pas les droits pour effectuer cette action.');
     }
 }
-
   
   async getProjectUserById(projectUserId: string, requestingUserId: string): Promise<ProjectUser> {
     const requestingUser = await this.userRepository.findOne({ where: { id: requestingUserId } });
@@ -149,10 +143,7 @@ export class ProjectUserService {
       throw new UnauthorizedException('Utilisateur non trouvé.');
     }
 
-    // Vérifiez si l'utilisateur a le droit d'accéder à cette ressource
-
     if (requestingUser.role === 'Employee') {
-      // Si l'utilisateur est un employé, il ne peut voir que ses propres assignations
       const projectUser = await this.projectUserRepository.findOne({
         where: { id: projectUserId, userId: requestingUser.id },
         select: [
@@ -167,7 +158,6 @@ export class ProjectUserService {
 
       return projectUser;
     } else if (requestingUser.role === 'Admin' || requestingUser.role === 'ProjectManager') {
-      // Si l'utilisateur est un administrateur ou un chef de projet, il peut voir toutes les assignations
       const projectUser = await this.projectUserRepository.findOne({
         where: { id: projectUserId },
         select: [
@@ -178,15 +168,11 @@ export class ProjectUserService {
           'userId',
         ],
       });
-
-      // Exclude the password field from the user entity
       if (projectUser?.user) {
         delete projectUser.user.password;
       }
-
       return projectUser;
     } else {
-      // Si l'utilisateur a un rôle non autorisé, lancez une exception UnauthorizedException
       throw new UnauthorizedException('Vous n\'avez pas les droits pour effectuer cette action.');
     }
   }

@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards, Request, Get, Headers, NotFoundExcep
 import { ProjectUserService } from './project-users.service';
 import { ProjectUser } from './project-users.entity';
 import { AuthGuard } from '../auth/auth.guard';
+import { User } from '../user/user.entity';
 
 @Controller('project-users')
 @UseGuards(AuthGuard)
@@ -30,22 +31,12 @@ export class ProjectUserController {
   }
   @Get()
   async getProjectUserAssignments(@Headers('authorization') authorization: string): Promise<{id: string, startDate: Date, endDate: Date, userId: string, projectId: string}[]> {
-    const token = authorization.split(' ')[1]; // Extraire le token de l'en-tête Authorization
+    const token = authorization.split(' ')[1];
     return this.projectUserService.getProjectUserAssignments(token);
   }
   @Get(':id')
-  async getProjectUserById(@Param('id') id: string, @Request() req: any): Promise<ProjectUser> {
-    try {
-      const requestingUserId = req.user.sub;
+  async getProjectUserById(@Param('id') id: string, @Request() req: User): Promise<ProjectUser> {
+      const requestingUserId = req.id;
       return this.projectUserService.getProjectUserById(id, requestingUserId);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        // Gérer l'exception NotFoundException ici
-        // Vous pouvez également laisser NestJS gérer cela et renvoyer une réponse 404 par défaut
-        throw error;
-      }
-      // Gérer d'autres exceptions ici
-      throw error;
-    }
   }
 }

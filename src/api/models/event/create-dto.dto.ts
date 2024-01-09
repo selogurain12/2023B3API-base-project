@@ -1,5 +1,3 @@
-// create-event.dto.ts
-
 import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
 
 enum EventStatus {

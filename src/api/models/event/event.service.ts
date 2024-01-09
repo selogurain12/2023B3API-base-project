@@ -1,5 +1,3 @@
-// events.service.ts
-
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -69,55 +67,38 @@ export class EventsService {
     const event = await this.eventsRepository.findOne({
       where: { id },
     });
-
     if (!event) {
       throw new NotFoundException("Événement non trouvé.");
     }
-
     return event;
   }
 
   async validateEvent(id: string, user: User): Promise<Event> {
     const event = await this.getEventById(id);
-
-    // Check event authorization
     this.checkEventAuthorization(event, user);
-
-    // Validate the event
     event.eventStatus = 'Accepted';
     return await this.eventsRepository.save(event);
   }
 
   async declineEvent(id: string, user: User): Promise<Event> {
     const event = await this.getEventById(id);
-
-    // Check event authorization
     this.checkEventAuthorization(event, user);
-
-    // Decline the event
     event.eventStatus = 'Declined';
     return await this.eventsRepository.save(event);
   }
 
   private checkEventAuthorization(event: Event, user: User): void {
-    // Check if the event is already accepted or declined
     if (event.eventStatus === 'Accepted' || event.eventStatus === 'Declined') {
       throw new UnauthorizedException("Impossible d'altérer le statut d'un projet déjà validé ou refusé.");
     }
-
-    // Check if the user is an administrator
     if (user.role === 'Admin') {
-      return; // Admins can validate any request
+      return;
     }
-
-    // Check if the user is attached to a project on the day of the event
-    const isUserInProject = false; // Replace with your logic to check if the user is in a project
+    const isUserInProject = false;
     if (!isUserInProject) {
       throw new UnauthorizedException("Vous n'êtes pas rattaché à un projet le jour de l'événement.");
     }
-
-    // Check if the project lead can validate or decline the event
-    const isProjectLead = false; // Replace with your logic to check if the user is a project lead
+    const isProjectLead = false;
     if (!isProjectLead || event.userId !== user.id) {
       throw new UnauthorizedException("Vous n'avez pas le droit de traiter cet événement.");
     }

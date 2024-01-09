@@ -26,8 +26,8 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard)
-  async getProfile(@Request() req): Promise<{ id: string, username: string, email: string, role: 'Employee' | 'Admin' | 'ProjectManager' }> {
-    const userId = req.user.sub;
+  async getProfile(@Request() req : string): Promise<{ id: string, username: string, email: string, role: 'Employee' | 'Admin' | 'ProjectManager' }> {
+    const userId = req;
     const user = await this.usersService.findOneById(userId);
     return {
       id: user.id,

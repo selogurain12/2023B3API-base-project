@@ -1,5 +1,3 @@
-// events.controller.ts
-
 import { Body, Controller, Get, Param, Post, Request, UseGuards, Req } from '@nestjs/common';
 import { EventsService } from './event.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -18,20 +16,19 @@ export class EventsController {
     return await this.eventsService.createEvent(createEventDto, userId);
   }
 
-
   @Get()
   async getAllEvents(): Promise<Event[]> {
     return this.eventsService.getAllEvents();
   }
 
   @Get(':id')
-  async getEventById(@Param('id') id: string) {
+  async getEventById(@Param('id') id: string): Promise<Event> {
     return await this.eventsService.getEventById(id);
   }
 
   @Post(':id/validate')
   async validateEvent(@Param('id') id: string, @Request() req): Promise<Event> {
-    const user: User = req.user; // Assuming the user object is attached to the request by the authentication middleware
+    const user: User = req.user;
     return this.eventsService.validateEvent(id, user);
   }
 

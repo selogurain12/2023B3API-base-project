@@ -45,12 +45,10 @@ export class ProjectService {
   
     const savedProject = await this.projectRepository.save(newProject);
   
-    // Exclude the 'password' field from the referringEmployee object
     const { password, ...referringEmployeeWithoutPassword } = referringEmployee;
   
     return { name, referringEmployeeId, id: savedProject.id, referringEmployee: referringEmployeeWithoutPassword };
   }
-  
 
   async getProjects(user: User, id:string): Promise<{ id: string, name: string, referringEmployeeId: string, referringEmployee: { id: string, username: string, email: string, role: "Employee" | "Admin" | "ProjectManager" }}[]> {
     if (user.role === 'Employee') {
@@ -87,20 +85,17 @@ export class ProjectService {
 
         const projectIds = projectUsers.map((pu) => pu.projectId);
 
-        // Vérifier si le projet demandé fait partie des projets associés à l'utilisateur
         if (!projectIds.includes(id)) {
-            throw new ForbiddenException('You do not have permission to access this project');
+            throw new ForbiddenException('Vous n\'avez pas les permissions pour accéder à ce projet');
         }
 
-        // Récupérer le projet demandé en incluant les relations nécessaires
         const project = await this.projectRepository.findOne({
             where: { id },
             select: ['id', 'name', 'referringEmployeeId'],
         });
 
-        // Si le projet n'est pas trouvé, lancer une exception NotFound
         if (!project) {
-            throw new NotFoundException(`Project with ID ${id} not found`);
+            throw new NotFoundException(`Projet avec pour ID: ${id}, non trouvé`);
         }
 
         return {
@@ -109,15 +104,13 @@ export class ProjectService {
             referringEmployeeId: project.referringEmployeeId,
         };
     } else if (user.role === 'Admin' || user.role === 'ProjectManager') {
-        // Si l'utilisateur est un administrateur ou un chef de projet, renvoyer le projet demandé avec les relations
         const project = await this.projectRepository.findOne({
             where: { id },
             select: ['id', 'name', 'referringEmployeeId'],
         });
 
-        // Si le projet n'est pas trouvé, lancer une exception NotFound
         if (!project) {
-            throw new NotFoundException(`Project with ID ${id} not found`);
+            throw new NotFoundException(`Projet avec pour ID: ${id}, non trouvé`);
         }
 
         return {
@@ -126,8 +119,7 @@ export class ProjectService {
             referringEmployeeId: project.referringEmployeeId,
         };
     } else {
-        // Si le rôle de l'utilisateur n'est pas géré, lancer une exception d'interdiction
-        throw new ForbiddenException('Unauthorized role');
+        throw new ForbiddenException('Role non authorisé');
     }
 }
 }

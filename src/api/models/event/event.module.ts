@@ -9,7 +9,7 @@ import { EventsService } from "./event.service";
 import { EventsController } from "./event.controller";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Event, ProjectUser]), 
+    imports: [TypeOrmModule.forFeature([Event, ProjectUser, User]), 
     JwtModule.register({
         global: true,
         secret: jwtConstants.secret,
