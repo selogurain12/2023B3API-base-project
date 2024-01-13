@@ -3,7 +3,15 @@ import { UsersService } from './user.service';
 import { User } from './user.entity'; 
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '../auth/auth.guard';
-
+interface MyRequest {
+  user: {
+    sub: string;
+    email: string;
+    role: 'Employee' | 'Admin' | 'ProjectManager';
+    iat: number;
+    exp: number;
+  };
+}
 @Controller('users')
 export class AuthController {
   constructor(private readonly usersService: UsersService, private readonly jwtService : JwtService) {}
@@ -26,8 +34,8 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard)
-  async getProfile(@Request() req : string): Promise<{ id: string, username: string, email: string, role: 'Employee' | 'Admin' | 'ProjectManager' }> {
-    const userId = req;
+  async getProfile(@Request() req: MyRequest): Promise<{ id: string, username: string, email: string, role: 'Employee' | 'Admin' | 'ProjectManager' }> {
+    const userId = req.user.sub;
     const user = await this.usersService.findOneById(userId);
     return {
       id: user.id,

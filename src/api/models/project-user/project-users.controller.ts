@@ -3,7 +3,15 @@ import { ProjectUserService } from './project-users.service';
 import { ProjectUser } from './project-users.entity';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../user/user.entity';
-
+interface MyRequest {
+  user: {
+    sub: string;
+    email: string;
+    role: 'Employee' | 'Admin' | 'ProjectManager';
+    iat: number;
+    exp: number;
+  };
+}
 @Controller('project-users')
 @UseGuards(AuthGuard)
 export class ProjectUserController {
@@ -12,7 +20,7 @@ export class ProjectUserController {
   @Post()
   async assignUserToProject(
     @Body() body: { startDate: Date; endDate: Date; userId: string; projectId: string, id:string },
-    @Request() req: any,
+    @Request() req: MyRequest,
   ): Promise<ProjectUser> {
     try {
       const requestingUserId = req.user.sub;

@@ -4,13 +4,14 @@ import { AuthGuard } from '../auth/auth.guard';
 import { Project } from './projects.entity';
 import { User } from '../user/user.entity';
 
+
 @Controller('projects')
 @UseGuards(AuthGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Post()
-  async createProject(@Req() request, @Body() body): Promise<{ id: string, name: string, referringEmployeeId: string, referringEmployee: Omit<User, 'password'> }> {
+  async createProject(@Req() request, @Body() body:{name:string,referringEmployeeId:string}): Promise<{ id: string, name: string, referringEmployeeId: string, referringEmployee: Omit<User, 'password'> }> {
     const user = request.user.sub;
     const {name, referringEmployeeId} = body
     return this.projectService.createProject(user, name, referringEmployeeId);
