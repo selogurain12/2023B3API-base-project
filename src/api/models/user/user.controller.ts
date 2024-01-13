@@ -67,14 +67,7 @@ async getUsers(): Promise<User[]>{
   @Get(':id/meal-vouchers/:month')
   @UseGuards(AuthGuard)
   async getMealVouchersAmount(@Param('id') userId: string, @Param('month') month: number): Promise<{ amount: number }> {
-    try {
       const amount = await this.usersService.getMealVouchersAmount(userId, month);
       return { amount };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
   }
 }

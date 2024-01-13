@@ -22,7 +22,7 @@ export class EventsService {
   }
 
   async createEvent(createEvent: CreateEventDto, userId: string): Promise<Event> {
-    const id = uuidv4();
+    const id : string = uuidv4();
     const event = this.eventsRepository.create({
       id,
       ...createEvent,

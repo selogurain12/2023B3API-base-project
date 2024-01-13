@@ -96,25 +96,15 @@ export class UsersService {
   }
   
   async getMealVouchersAmount(userId: string, month: number): Promise<number> {
-    const user = await this.getUserById(userId);
-    const startDate = startOfMonth(new Date(2024, month - 1, 1)); // Assuming 2024 for the year
+    const user = await this.getOneUsers(userId);
+    const startDate = startOfMonth(new Date(2024, month - 1, 1));
     const endDate = endOfMonth(startDate);
-    
-    // Calculate the number of working days in the month
+
     const workingDays = this.getWorkingDays(startDate, endDate);
 
-    // Assuming 8 euros per working day
     const mealVoucherAmount = workingDays * 8;
     
     return mealVoucherAmount;
-  }
-
-  private async getUserById(userId: string): Promise<User> {
-    const user = await this.userRepository.findOne({where : { id: userId }});
-    if (!user) {
-      throw new NotFoundException("Utilisateur non trouvé.");
-    }
-    return user;
   }
 
   private getWorkingDays(startDate: Date, endDate: Date): number {

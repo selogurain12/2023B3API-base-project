@@ -23,4 +23,5 @@ export class User {
 
     @OneToMany(() => ProjectUser, projectUser => projectUser.user)
     projectUsers: ProjectUser[];
+  user: any;
 }

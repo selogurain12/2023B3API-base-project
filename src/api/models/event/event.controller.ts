@@ -23,8 +23,8 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  async createEvent(@Body() createEventDto: CreateEventDto, @Req() req): Promise<Event> {
-    const userId = req.user.sub;
+  async createEvent(@Body() createEventDto: CreateEventDto, @Req() req : User): Promise<Event> {
+    const userId: string = req.user.sub;
     return await this.eventsService.createEvent(createEventDto, userId);
   }
 
@@ -34,19 +34,19 @@ export class EventsController {
   }
 
   @Get(':id')
-  async getEventById(@Param('id') id: string): Promise<Event> {
+  async getEventById(@Param('id') id): Promise<Event> {
     return await this.eventsService.getEventById(id);
   }
 
   @Post(':id/validate')
-  async validateEvent(@Param('id') id: string, @Request() req: MyRequest): Promise<Event> {
-    const user: User = req.user;
+  async validateEvent(@Param('id') id: string, @Request() req: User): Promise<Event> {
+    const user : User = req.user;
     return this.eventsService.validateEvent(id, user);
   }
 
   @Post(':id/decline')
-  async declineEvent(@Param('id') id: string, @Request() req: MyRequest): Promise<Event> {
-    const user: User = req.user;
+  async declineEvent(@Param('id') id: string, @Request() req: User): Promise<Event> {
+    const user : User = req.user;
     return this.eventsService.declineEvent(id, user);
   }
 }

@@ -23,32 +23,36 @@ export class ProjectService {
         id: user,
       }
     })
-    if (userrole.role==="Employee" || userrole.role==="ProjectManager"){
+
+    if (userrole.role === "Employee" || userrole.role === "ProjectManager") {
       throw new UnauthorizedException("Utilisateur non autorisé");
     }
+
     const referringEmployee = await this.userRepository.findOne({
       where: {
         id: referringEmployeeId,
       },
     });
+
     if (referringEmployee.role === "Employee" ) {
       throw new UnauthorizedException(referringEmployee.role);
     }
+
     if (name.length < 3) {
-      throw new BadRequestException('Project name must contain at least 3 characters');
+      throw new BadRequestException('Le nom du projet doit contenir au moins 3 caractères');
     }
-  
+
     const newProject = this.projectRepository.create({
       name,
       referringEmployee,
     });
-  
+
     const savedProject = await this.projectRepository.save(newProject);
-  
+
     const { password, ...referringEmployeeWithoutPassword } = referringEmployee;
-  
+
     return { name, referringEmployeeId, id: savedProject.id, referringEmployee: referringEmployeeWithoutPassword };
-  }
+}
 
   async getProjects(user: User, id:string): Promise<{ id: string, name: string, referringEmployeeId: string, referringEmployee: { id: string, username: string, email: string, role: "Employee" | "Admin" | "ProjectManager" }}[]> {
     if (user.role === 'Employee') {

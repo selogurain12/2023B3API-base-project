@@ -22,7 +22,6 @@ export class ProjectUserController {
     @Body() body: { startDate: Date; endDate: Date; userId: string; projectId: string, id:string },
     @Request() req: MyRequest,
   ): Promise<ProjectUser> {
-    try {
       const requestingUserId = req.user.sub;
       const createdAssignment = await this.projectUserService.assignUserToProject(
         body.id,
@@ -33,9 +32,6 @@ export class ProjectUserController {
         requestingUserId,
       );
       return createdAssignment;
-    } catch (error) {
-      throw error;
-    }
   }
   @Get()
   async getProjectUserAssignments(@Headers('authorization') authorization: string): Promise<{id: string, startDate: Date, endDate: Date, userId: string, projectId: string}[]> {
